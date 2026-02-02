@@ -1,12 +1,13 @@
-![Teaser](streamlit_ui/pictures/teaser.png)
+![Teaser](streamlit_ui/pictures/splitlight.png)
+
+
+# SplitLight: Explore your RecSys dataset and split
 
 ![PyData](https://img.shields.io/badge/data-Pandas-EE4C2C)
 [![Hydra](https://img.shields.io/badge/config-Hydra-ADD8E6)](https://github.com/facebookresearch/hydra)
 [![Streamlit](https://img.shields.io/badge/UI-Streamlit-%238a91faff)](https://streamlit.io/)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE) 
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11-ff69b4)](https://www.python.org/)
-
-# SplitLight: Explore your RecSys dataset and split
 
 SplitLight is a lightweight framework for auditing recommender-system datasets and evaluating splitting results. Its main goal is to help you produce trustworthy splits and justify split choices via transparent, data-driven diagnostics. 
 SplitLight could be used in Jupyter/Python scripts for comprehensive analysis and offers easy-to-use Streamlit UI for interactive exploration, health checks, and side-by-side comparisons. 
