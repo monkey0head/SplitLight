@@ -4,7 +4,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.preprocess.filters import core_filter
-from src.preprocess.utils import encode, rename_cols
+from src.preprocess.utils import encode, rename_cols, sample_users, shuffle_timestamp_collisions
 from src.stats.base import base_stats
 
 
@@ -17,12 +17,14 @@ def preprocess(
     drop_conseq_repeats=False,
     filter_by_relevance=False,
     users_sample=None,
+    shuffle_collision=False,
     user_id="user_id",
     item_id="item_id",
     timestamp="timestamp",
     relevance="relevance",
     path_to_save=None,
     verbose=True,
+    seed=None,
 ):
     """
     - columns renaming
@@ -48,9 +50,6 @@ def preprocess(
     if filter_by_relevance:
         raise NotImplementedError("No filter_by_relevance implemented")
 
-    if users_sample is not None:
-        raise NotImplementedError("No user sampling implemented")
-
     if core:
         data = core_filter(
             data=data,
@@ -66,13 +65,27 @@ def preprocess(
         if verbose:
             print("After N-core")
             print(base_stats(data))
-
     else:
         raise NotImplementedError("N-core filtering is only one available")
+    
+    if users_sample is not None:
+        data = sample_users(
+            data,
+            user_id="user_id",
+            users_sample=users_sample,
+            random_state=seed,
+        )
+
+        if verbose:
+            print("After user sampling")
+            print(base_stats(data))
 
     if encoding:
         data = encode(data=data, col_name="user_id", shift=0)
         data = encode(data=data, col_name="item_id", shift=1)
+    
+    if shuffle_collision:
+        data = shuffle_timestamp_collisions(data, random_state=seed)
 
     if path_to_save is not None:
         data.to_csv(path_to_save, index=False)
