@@ -1,0 +1,50 @@
+cuda_visible_devices: 0
+random_state: 17
+
+defaults:
+  - _self_
+  - dataset: Beauty
+  - model: SASRec
+
+# Required by model configs (e.g. model_params.maxlen: ${dataset_params.max_length})
+model:
+  dataset_params:
+    max_length: ${max_length}
+
+clearml_project_name: # av_test_pipeline
+clearml_task_name: # train_rs_splitlight
+clearml_data_project_name: 
+clearml_data_task_name: 
+
+split_name: "leave-one-out"
+
+dataloader:
+  batch_size: 256
+  test_batch_size: 256
+  num_workers: 2
+  validation_size: 5000 
+
+max_length: 128
+
+seqrec_module:
+  lr: 0.001
+  predict_top_k: 10  
+  filter_seen: ${dataset.filter_seen}
+
+trainer_params:
+  max_epochs: 500
+patience: ${model.patience}
+optimize_metric: test_NDCG@10
+
+load_if_possible: True # not supported yet. valid only for fixed checkpoint names?
+calc_val_metrics: True
+calc_test_metrics: True
+
+evaluator:
+  metrics: ['NDCG', 'HitRate', 'MRR', 'Coverage']
+  top_k: [1, 5, 10, 20, 50, 100]
+  polars_metrics: True
+
+retrain_with_validation: False # not supported yet
+save_val_predictions: False # not supported yet
+save_test_predictions: False # not supported yet

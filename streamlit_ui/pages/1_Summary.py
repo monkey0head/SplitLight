@@ -68,7 +68,7 @@ st.text("")
 st.text("")
 st.markdown(
     """
-    The view below reports main metrics for **referece** subset and **split-related** metrics.
+    The view below reports main metrics for **reference** subset and **split-related** metrics.
     Use `More details` on the right of each section to open the dedicated deep-dive. 
 
     **Summary Status:** After computation, each metric is assigned a color-coded *status* (*OK*, *Need Attention*, *Warning*, and *Info*).
@@ -414,5 +414,5 @@ if not no_splits:
 
 
         st.caption(
-            """**Note: Data Leakage**, **Cold Start** and **Data Shift** only make sense when computed **against training data**. Therefore, these metrics are always computed agains `train`.
+            """**Note: Data Leakage**, **Cold Start** and **Data Shift** only make sense when computed **against training data**. Therefore, these metrics are always computed against `train`.
             """)

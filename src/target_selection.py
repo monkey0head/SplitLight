@@ -28,16 +28,14 @@ def leave_first(
 
         # For warm users: take first interaction as target
         warm_target = (
-            data_sorted[warm_user_mask].groupby("user_id").nth(0).reset_index()
+            data_sorted[warm_user_mask].groupby("user_id").apply(lambda x: x.iloc[0]).reset_index()
         )
 
         # For cold users:
         cold_full = data_sorted[~warm_user_mask].groupby("user_id")
 
-        cold_input = cold_full.nth(0).reset_index()  # first interaction becomes input
-        cold_target = cold_full.nth(
-            1
-        ).reset_index()  # second interaction becomes target
+        cold_input = cold_full.apply(lambda x: x.iloc[0]).reset_index()  # first interaction becomes input
+        cold_target = cold_full.apply(lambda x: x.iloc[1] if len(x) > 1 else None).dropna().reset_index()
 
         targets = pd.concat([warm_target, cold_target], ignore_index=True)
 
@@ -46,9 +44,11 @@ def leave_first(
         )
     else:
         # If no input data is specified, take first interaction as input, second as target
-        final_input = data_sorted.groupby("user_id").nth(0).reset_index()
-        targets = data_sorted.groupby("user_id").nth(1).reset_index()
+        final_input = data_sorted.groupby("user_id").apply(lambda x: x.iloc[0]).reset_index()
+        targets = data_sorted.groupby("user_id").apply(lambda x: x.iloc[1] if len(x) > 1 else None).dropna().reset_index()
 
+    final_input['timestamp'] = final_input['timestamp'].astype(int)
+    targets['timestamp'] = targets['timestamp'].astype(int)
     return final_input, targets
 
 
@@ -73,7 +73,7 @@ def leave_last(
     data_sorted = holdout_data.sort_values(["user_id", "timestamp"], kind="stable")
 
     # Get last interaction per user as target
-    targets = data_sorted.groupby("user_id").nth(-1).reset_index()
+    targets = data_sorted.groupby("user_id").apply(lambda x: x.iloc[-1]).reset_index(drop=True)
 
     # Select all interactions except last as inputs
     final_input = data_sorted.groupby("user_id").head(-1).reset_index(drop=True)

@@ -24,13 +24,13 @@ def deltas_between_subsets(
     first_target = (
         target_data.sort_values("timestamp", kind="stable")
         .groupby("user_id")["timestamp"]
-        .nth(0)
+        .apply(lambda x: x.iloc[0])
         .to_frame()
     )
     last_input = (
         input_data.sort_values("timestamp", kind="stable")
         .groupby("user_id")["timestamp"]
-        .nth(-1)
+        .apply(lambda x: x.iloc[-1])
     )
 
     first_target = first_target.reset_index()
@@ -75,7 +75,7 @@ def time_counts(
     normalize: bool = False,
 ) -> pd.DataFrame:
     """
-    Calculates the number of interactions occured in a specified time unit (hour, day of week, etc.).
+    Calculates the number of interactions occurred in a specified time unit (hour, day of week, etc.).
 
     Args:
         data (DataFrame): DataFrame containing 'timestamp' and 'item_id'.

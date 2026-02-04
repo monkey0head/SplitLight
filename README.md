@@ -79,7 +79,7 @@ What you can explore:
 | Category                | Description                                                                                                                                                                                          |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Dataset and Subsets** | Analyze raw and preprocessed data in terms of core and temporal statistics and compare. Identify repeated consumption patterns. Visualize interactions distribution over time.                       |
-| **Subsets and Splits**  | Analyze splitted data in terms of core and temporal statistics and compare subsets with full data. Identify and visualize presence of data leakage. Quantify and visualize user and item cold start. |
+| **Subsets and Splits**  | Analyze split data in terms of core and temporal statistics and compare subsets with full data. Identify and visualize presence of data leakage. Quantify and visualize user and item cold start. |
 | **Compare splits**      | Compare different splits in terms of core and temporal statistics. Identify distribution shifts for target subset.                                                                 |
 
 
@@ -152,6 +152,18 @@ python runs/split.py \
   - `split_params.validation_size` — number of users for `by_user`
   - `split_params.validation_quantile` — time for `by_time`
   - `split_params.target_type` — `all` | `first` | `last` | `random`
+
+### Train RS model on selected data split 
+
+```bash
+export PYTHONPATH="$(pwd):$PYTHONPATH"
+export SEQ_SPLITS_DATA_PATH=$(pwd)/data
+python runs/train_rs.py dataset=Beauty split_name=leave-one-out model.model_class=SASRec
+python runs/train_rs.py dataset=Beauty split_name=leave-one-out trainer_params.max_epochs=5
+```
+- Config: `runs/configs/train_rs.yaml`
+- Dataset column mapping: `runs/configs/dataset/<DatasetName>.yaml`
+- Output: `data/<DatasetName>/preprocessed.csv`
 
 ## FAQ
 

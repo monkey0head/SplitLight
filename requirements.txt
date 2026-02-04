@@ -10,3 +10,11 @@ matplotlib
 streamlit==1.50.0
 plotly
 seaborn
+
+# rs run
+torch
+pytorch_lightning
+clearml 
+replay-rec
+polars
+tensorboard

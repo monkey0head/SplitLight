@@ -1,0 +1,14 @@
+model_class: RNN
+
+model_params:
+  input_size: 64
+  hidden_size: 64
+  num_layers: 1
+  dropout: 0.1
+
+patience: 10
+
+hyper:
+  hidden_size: [16, 32, 64, 128, 256, 512, 48, 96]
+  num_layers: [1, 2, 3, 4] 
+  dropout: [0.1, 0.2, 0.3, 0.5]
