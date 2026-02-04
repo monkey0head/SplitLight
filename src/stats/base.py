@@ -5,17 +5,19 @@ import pandas as pd
 
 from .utils import get_deltas
 
-def get_ts_collisions(data: pd.DataFrame) -> Optional[pd.DataFrame]:
+def get_ts_collisions(data: pd.DataFrame, user_id: str = "user_id", timestamp: str = "timestamp") -> Optional[pd.DataFrame]:
     """
     Adds a flag column indicating duplicate timestamp interactions.
     
     Args:
         data: DataFrame containing user interactions with columns: user_id, timestamp
+        user_id (str, optional): Name of the user ID column.
+        timestamp (str, optional): Name of the timestamp column.
         
     Returns:
         DataFrame with 'timestamp_collisions' column added
     """
-    data['timestamp_collisions'] = data.duplicated(subset=['user_id', 'timestamp'], keep='first')
+    data['timestamp_collisions'] = data.duplicated(subset=[user_id, timestamp], keep='first')
     
     return data
 
@@ -57,7 +59,7 @@ def get_mean_median(series: pd.Series, prefix: str = "") -> Dict[str, float]:
     }
 
 
-def count_delta_stats(data: pd.DataFrame) -> Dict[str, float]:
+def count_delta_stats(data: pd.DataFrame, col="user_id", timestamp="timestamp") -> Dict[str, float]:
     """
     Compute time between interactions statistics (mean and median) from timestamped data.
 
@@ -70,7 +72,7 @@ def count_delta_stats(data: pd.DataFrame) -> Dict[str, float]:
     Returns:
         Dictionary with mean and median time between interactions.
     """
-    deltas = get_deltas(data)
+    deltas = get_deltas(data, col=col, timestamp=timestamp)
     return get_mean_median(deltas["delta"], prefix="time_between_interactions")
 
 
@@ -198,15 +200,13 @@ def temporal_stats(data: pd.DataFrame,
         }
     )
     stats["timeframe"] = data[timestamp].max() - data[timestamp].min()
-    stats.update(count_delta_stats(data))
+    stats.update(count_delta_stats(data, col=user_id, timestamp=timestamp))
     # User lifetime stats (in days)
     user_lifetimes = calc_lifetime(data, timestamp, user_id)
     stats.update(get_mean_median(user_lifetimes["lifetime"], prefix="user_lifetime"))
-
     stats["mean_user_lifetime, %"] = (
         stats["mean_user_lifetime"] * 100 / stats["timeframe"]
     )
-
     # Item lifetime stats (in days)
     item_lifetimes = calc_lifetime(data, timestamp, item_id)
     stats.update(get_mean_median(item_lifetimes["lifetime"], prefix="item_lifetime"))
@@ -215,7 +215,7 @@ def temporal_stats(data: pd.DataFrame,
         stats["mean_item_lifetime"] * 100 / stats["timeframe"]
     )
     
-    ts_collisions = get_ts_collisions(data)['timestamp_collisions']
+    ts_collisions = get_ts_collisions(data, user_id, timestamp)['timestamp_collisions']
     stats["timestamp_collisions"] = ts_collisions.sum()
     stats["timestamp_collisions, %"] = ts_collisions.mean() * 100
     

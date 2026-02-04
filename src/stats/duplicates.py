@@ -5,7 +5,7 @@ import pandas as pd
 from .utils import get_conseq_duplicates
 
 
-def get_item_repeat(data: pd.DataFrame) -> Optional[pd.DataFrame]:
+def get_item_repeat(data: pd.DataFrame, user_id: str = 'user_id', item_id: str = 'item_id') -> Optional[pd.DataFrame]:
     """
     Adds a flag column indicating duplicate item interactions (regardless of order).
     
@@ -15,11 +15,12 @@ def get_item_repeat(data: pd.DataFrame) -> Optional[pd.DataFrame]:
     Returns:
         DataFrame with 'item_duplicate' column added
     """
-    data['item_duplicate'] = data.duplicated(subset=['user_id', 'item_id'], keep='first')
+    data = data.copy()
+    data['item_duplicate'] = data.duplicated(subset=[user_id, item_id], keep='first')
     
     return data
 
-def get_all_duplicates(data: pd.DataFrame) -> Optional[pd.DataFrame]:
+def get_all_duplicates(data: pd.DataFrame, user_id: str = 'user_id', item_id: str = 'item_id', timestamp: str = 'timestamp') -> Optional[pd.DataFrame]:
     """
     Adds all three duplicate flag columns to the DataFrame.
     
@@ -32,27 +33,30 @@ def get_all_duplicates(data: pd.DataFrame) -> Optional[pd.DataFrame]:
     data = data.copy()
     
     # Add all three flags
-    data = get_conseq_duplicates(data)
-    data = get_item_repeat(data)
+    data = get_conseq_duplicates(data, user_id, item_id, timestamp)
+    data = get_item_repeat(data, user_id, item_id)
     
     return data
 
 def _duplicate_counts(
     data: pd.DataFrame,
-    col="item_duplicate",
-    count_no_duplicates=False
+    col: str = "item_duplicate",
+    count_no_duplicates: bool = False,
+    user_id: str = "user_id",
 ) -> Dict[str, float]:
     """
     Calculates duplicate statistics in a consistent format.
-    
+
     Args:
-        data: DataFrame containing user interactions with columns: user_id, timestamp and duplicate flag column
+        data: DataFrame containing user interactions with user id column, timestamp and duplicate flag column
         col: name of the duplicate column
-        
+        count_no_duplicates: if True, include users with no duplicates in averages
+        user_id: name of the user identifier column
+
     Returns:
         Dictionary with formatted statistics
     """
-    grouped = data.groupby('user_id')[col]
+    grouped = data.groupby(user_id)[col]
 
     users = grouped.any()
     num_repeats = grouped.sum()
@@ -76,7 +80,7 @@ def _duplicate_counts(
         "Avg. Share per user": avg_share_per_user,
     }
 
-def duplicates_stats(data: pd.DataFrame, count_no_duplicates=False) -> pd.DataFrame:
+def duplicates_stats(data: pd.DataFrame, user_id: str='user_id', item_id: str = 'item_id', timestamp: str = 'timestamp', count_no_duplicates=False) -> pd.DataFrame:
     """
     Aggregates statistics for three types of duplicate interactions:
     - Consecutive item duplicates
@@ -88,11 +92,11 @@ def duplicates_stats(data: pd.DataFrame, count_no_duplicates=False) -> pd.DataFr
     Returns:
         pd.DataFrame: A DataFrame with each column representing a duplicate type, and stats as rows.
     """
-    data_all_flags = get_all_duplicates(data)
+    data_all_flags = get_all_duplicates(data, user_id, item_id, timestamp)
 
     stats_dict = {
-        "Consecutive item duplicates": _duplicate_counts(data_all_flags, "conseq_duplicate", count_no_duplicates),
-        "Non-unique item interactions": _duplicate_counts(data_all_flags, "item_duplicate", count_no_duplicates),
+        "Consecutive item duplicates": _duplicate_counts(data_all_flags, "conseq_duplicate", count_no_duplicates, user_id),
+        "Non-unique item interactions": _duplicate_counts(data_all_flags, "item_duplicate", count_no_duplicates, user_id),
     }
 
     return pd.DataFrame(stats_dict)

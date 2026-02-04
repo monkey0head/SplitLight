@@ -1,8 +1,12 @@
 name: Beauty
 filter_seen: True
 column_name:  
-  user_id: 'reviewerID'
-  item_id: 'asin'
-  timestamp: 'unixReviewTime'
+  user_id: 'user_id'
+  item_id: 'item_id'
+  timestamp: 'timestamp'
   relevance: 
+  # user_id: 'reviewerID'
+  # item_id: 'asin'
+  # timestamp: 'unixReviewTime'
+  # relevance: 
   # relevance: 'overall'

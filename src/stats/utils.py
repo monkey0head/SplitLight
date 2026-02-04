@@ -63,7 +63,7 @@ def compare_distributions(
     return pd.Series(stat_dict)
 
 
-def get_deltas(data: pd.DataFrame, col="user_id") -> pd.DataFrame:
+def get_deltas(data: pd.DataFrame, col="user_id", timestamp="timestamp") -> pd.DataFrame:
     """
     Computes the time difference (delta) between successive interactions for each enity (user or item).
 
@@ -73,23 +73,24 @@ def get_deltas(data: pd.DataFrame, col="user_id") -> pd.DataFrame:
     Args:
         data (pd.DataFrame): DataFrame with 'user_id', 'item_id' and 'timestamp' columns.
         col (str, optional): Name of the column used to group entities (e.g., user ID). Defaults to "user_id".
+        timestamp (str, optional): Name of the timestamp column. Defaults to "timestamp".
 
     Returns:
         DataFrame: The original DataFrame with an added 'delta' column.
     """
     data = data.copy().reset_index(drop=True)
-    data["timestamp"] = data["timestamp"].astype(int)
+    data[timestamp] = data[timestamp].astype(int)
 
     # Calculate time difference between consecutive interactions per user
     data["delta"] = (
-        data.sort_values([col, "timestamp"], kind="stable")
-        .groupby(col)["timestamp"]
+        data.sort_values([col, timestamp], kind="stable")
+        .groupby(col)[timestamp]
         .diff()
     )
     return data
 
 
-def get_conseq_duplicates(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
+def get_conseq_duplicates(data: pd.DataFrame, user_id: str = "user_id", item_id: str = "item_id", timestamp: str = "timestamp") -> Tuple[pd.DataFrame, pd.Series]:
     """
     Identifies consecutive duplicate interactions in the dataset.
 
@@ -99,11 +100,12 @@ def get_conseq_duplicates(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
     Returns:
         DataFrame: The original DataFrame with an added 'conseq_duplicate' column marking consecutive duplicates
     """
-    data_sorted = data.sort_values(["user_id", "timestamp"], kind="stable")
-    data_sorted["shifted"] = data_sorted.groupby("user_id")["item_id"].shift(periods=1)
+    data_sorted = data.copy()
+    data_sorted.sort_values([user_id, timestamp], kind="stable", inplace=True)
+    data_sorted["shifted"] = data_sorted.groupby(user_id)[item_id].shift(periods=1)
 
     data_sorted["conseq_duplicate"] = (
-        data_sorted["item_id"] == data_sorted["shifted"]
+        data_sorted[item_id] == data_sorted["shifted"]
     ).fillna(False)
 
     return data_sorted.drop(columns="shifted")
@@ -142,7 +144,7 @@ def distribution_distances(distr1, distr2, log=True, n_bins=100):
         n_bins (int): Number of bins for computing histograms.
 
     Returns:
-        dict with different distanceses.
+        dict with different distances.
     """
 
     if log:
