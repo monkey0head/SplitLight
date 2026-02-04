@@ -1,0 +1,6 @@
+name: Dressipi
+column_name:  
+  user_id: 'session_id'
+  item_id: 'item_id'
+  timestamp: 'date'
+  relevance:
