@@ -71,10 +71,11 @@ def leave_last(
         or just target_interactions if input_data is None
     """
     data_sorted = holdout_data.sort_values(["user_id", "timestamp"], kind="stable")
+    assert data_sorted.groupby("user_id")['user_id'].count().min() > 1, "Each user must have at least 2 interactions"
 
     # Get last interaction per user as target
-    targets = data_sorted.groupby("user_id").apply(lambda x: x.iloc[-1]).reset_index(drop=True)
-
+    targets = data_sorted.groupby("user_id").tail(1).reset_index(drop=True)
+    
     # Select all interactions except last as inputs
     final_input = data_sorted.groupby("user_id").head(-1).reset_index(drop=True)
 

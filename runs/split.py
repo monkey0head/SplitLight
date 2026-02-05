@@ -10,6 +10,7 @@ from omegaconf import OmegaConf
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.splits import LeaveOneOutSplitter, GlobalTimeSplitter
+from src.stats.base import base_stats
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="split")
@@ -49,6 +50,12 @@ def main(config):
 
     else:
         raise ValueError("Wrong type of splitter.")
+
+    print(f'train\n', base_stats(train))
+    print(f'validation_input\n', base_stats(validation_input))
+    print(f'validation_target\n', base_stats(validation_target))
+    print(f'test_input\n', base_stats(test_input))
+    print(f'test_target\n', base_stats(test_target))
 
     if config.save_results:
         if not os.path.exists(dir_name):
