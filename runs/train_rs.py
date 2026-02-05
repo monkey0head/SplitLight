@@ -113,7 +113,8 @@ def prepare_data(config):
             subsets[subset].item_id += 1
         if config.model.model_class == 'BERT4Rec':
             subsets[subset].item_id += 2
-    max_item_id = max(max_item_id, subsets[subset]['item_id'].max())
+        max_item_id = max(max_item_id, subsets[subset]['item_id'].max())
+    
     return subsets['train'], subsets['validation_input'], subsets['validation_target'], subsets['test_input'], subsets['test_target'], max_item_id + 1
 
 
