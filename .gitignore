@@ -13,3 +13,5 @@ outputs/
 multirun/
 data/
 models/
+res_*/
+docker_scripts/*
