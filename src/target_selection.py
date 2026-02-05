@@ -2,6 +2,21 @@ from typing import Tuple, Union
 
 import pandas as pd
 
+def leave_first_no_input(
+    holdout_data: pd.DataFrame,
+    user_col: str = "user_id",
+    timestamp_col: str = "timestamp",
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Split holdout sequence without input data into input and target.
+    For each user:
+    - First interaction becomes input
+    - Second interaction becomes target
+    """
+    data_sorted = holdout_data.sort_values([user_col, timestamp_col], kind="stable")
+    data_sorted["_time_idx"] = data_sorted.groupby(user_col).cumcount(ascending=True)
+    input_data = data_sorted[data_sorted["_time_idx"] == 0].drop(columns=["_time_idx"])
+    targets = data_sorted[data_sorted["_time_idx"] ==  1].drop(columns=["_time_idx"])
+    return input_data, targets
 
 def leave_first(
     holdout_data: pd.DataFrame, input_data: pd.DataFrame = None
@@ -28,24 +43,20 @@ def leave_first(
 
         # For warm users: take first interaction as target
         warm_target = (
-            data_sorted[warm_user_mask].groupby("user_id").apply(lambda x: x.iloc[0]).reset_index()
+            data_sorted[warm_user_mask].groupby("user_id").head(1)
         )
 
         # For cold users:
-        cold_full = data_sorted[~warm_user_mask].groupby("user_id")
-
-        cold_input = cold_full.apply(lambda x: x.iloc[0]).reset_index()  # first interaction becomes input
-        cold_target = cold_full.apply(lambda x: x.iloc[1] if len(x) > 1 else None).dropna().reset_index()
-
+        cold_full = data_sorted[~warm_user_mask]
+        cold_input, cold_target = leave_first_no_input(cold_full)
         targets = pd.concat([warm_target, cold_target], ignore_index=True)
 
-        final_input = pd.concat([input_data, cold_input]).sort_values(
+        final_input = pd.concat([input_data, cold_input], ignore_index=True).sort_values(
             ["user_id", "item_id"], kind="stable"
         )
     else:
         # If no input data is specified, take first interaction as input, second as target
-        final_input = data_sorted.groupby("user_id").apply(lambda x: x.iloc[0]).reset_index()
-        targets = data_sorted.groupby("user_id").apply(lambda x: x.iloc[1] if len(x) > 1 else None).dropna().reset_index()
+        final_input, targets = leave_first_no_input(data_sorted)
 
     final_input['timestamp'] = final_input['timestamp'].astype(int)
     targets['timestamp'] = targets['timestamp'].astype(int)
@@ -71,16 +82,12 @@ def leave_last(
         or just target_interactions if input_data is None
     """
     data_sorted = holdout_data.sort_values(["user_id", "timestamp"], kind="stable")
-    assert data_sorted.groupby("user_id")['user_id'].count().min() > 1, "Each user must have at least 2 interactions"
-
-    # Get last interaction per user as target
-    targets = data_sorted.groupby("user_id").tail(1).reset_index(drop=True)
-    
-    # Select all interactions except last as inputs
-    final_input = data_sorted.groupby("user_id").head(-1).reset_index(drop=True)
+    data_sorted["_time_idx_reversed"] = data_sorted.groupby("user_id").cumcount(ascending=False)
+    final_input = data_sorted[data_sorted["_time_idx_reversed"] > 0].drop(columns=["_time_idx_reversed"])
+    targets = data_sorted[data_sorted["_time_idx_reversed"] == 0].drop(columns=["_time_idx_reversed"])
 
     if input_data is not None:
-        final_input = pd.concat([input_data, final_input]).sort_values(
+        final_input = pd.concat([input_data, final_input], ignore_index=True).sort_values(
             ["user_id", "item_id"], kind="stable"
         )
     return final_input, targets
@@ -104,7 +111,7 @@ def leave_random(
         Tuple of (input_data, target_data)
     """
     data_sorted = holdout_data.sort_values(["user_id", "timestamp"], kind="stable")
-    data_sorted["time_id"] = data_sorted.groupby("user_id").cumcount()
+    data_sorted["_time_idx"] = data_sorted.groupby("user_id").cumcount()
 
     if input_data is not None:
         warm_users = input_data["user_id"].unique()
@@ -117,27 +124,27 @@ def leave_random(
         # For cold users: take random interaction except the first one
         cold_full = data_sorted[~warm_user_mask]
         cold_target = (
-            cold_full[cold_full["time_id"] > 0].groupby("user_id").sample(n=1)
+            cold_full[cold_full["_time_idx"] > 0].groupby("user_id").sample(n=1)
             if not cold_full.empty
             else cold_full
         )  # exclude first interaction
 
-        targets = pd.concat([warm_target, cold_target])
+        targets = pd.concat([warm_target, cold_target], ignore_index=True)
     else:
         # If no warm users specified, select random non-first interaction as target
-        targets = data_sorted[data_sorted["time_id"] > 0].groupby("user_id").sample(n=1)
+        targets = data_sorted[data_sorted["_time_idx"] > 0].groupby("user_id").sample(n=1)
 
-    max_time_id_map = targets.set_index("user_id")["time_id"]
-    data_sorted["sampled_time_id"] = data_sorted["user_id"].map(max_time_id_map)
+    max_time_id_map = targets.set_index("user_id")["_time_idx"]
+    data_sorted["sampled_time_idx"] = data_sorted["user_id"].map(max_time_id_map)
 
     # Select all interactions before the target as input
     final_input = data_sorted[
-        data_sorted["time_id"] < data_sorted["sampled_time_id"]
-    ].drop(columns=["time_id", "sampled_time_id"])
+        data_sorted["_time_idx"] < data_sorted["sampled_time_idx"]
+    ].drop(columns=["_time_idx", "sampled_time_idx"])
 
     if input_data is not None:
-        final_input = pd.concat([input_data, final_input]).sort_values(
+        final_input = pd.concat([input_data, final_input], ignore_index=True).sort_values(
             ["user_id", "item_id"], kind="stable"
         )
 
-    return final_input, targets.drop(columns=["time_id"])
+    return final_input, targets.drop(columns=["_time_idx"])
