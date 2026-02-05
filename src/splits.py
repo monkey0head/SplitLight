@@ -139,6 +139,9 @@ class LeaveOneOutSplitter:
                 self.item_col, train, test_input, test_target, self.user_col
             )
 
+        validation_input, validation_target = align_input_target(validation_input, validation_target, self.user_col)
+        test_input, test_target = align_input_target(test_input, test_target, self.user_col)
+
         return train, validation_input, validation_target, test_input, test_target
 
 
@@ -265,6 +268,8 @@ class GlobalTimeSplitter:
             )
         test_input, test_target = self._process_target_type(test_input, test_holdout)
         print("test_input users after target processing: ", test_input[self.user_col].nunique())
+        validation_input, validation_target = align_input_target(validation_input, validation_target, self.user_col)
+        test_input, test_target = align_input_target(test_input, test_target, self.user_col)
         return train, validation_input, validation_target, test_input, test_target
 
     def split_by_time(
@@ -442,6 +447,4 @@ class GlobalTimeSplitter:
         }
 
         input_data, target_data = dispatch[self.target_type]()
-        input_data, target_data = align_input_target(input_data, target_data, self.user_col)
-
         return input_data, target_data
