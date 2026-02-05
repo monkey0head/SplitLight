@@ -74,6 +74,17 @@ def main(config):
         task.close()
         
     if metrics_test is not None:
+        save_dir = os.path.join(
+            config.save_dir,
+            config.dataset.name,
+            config.split_name,
+            config.model.model_class,
+        )
+
+        os.makedirs(save_dir, exist_ok=True)
+
+        save_path = os.path.join(save_dir, "test_metrics.yaml")
+        OmegaConf.save(metrics_test, save_path)
         return metrics_test[config.optimize_metric]
     return None
     
@@ -279,6 +290,7 @@ def evaluate(recs, test, train, task, config, prefix='test'):
 
     if task is not None:
         task.get_logger().report_single_value(f"{prefix}_eval_time", eval_time)
+    
     return metrics_dct
 
 if __name__ == "__main__":
