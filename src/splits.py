@@ -7,6 +7,50 @@ import pandas as pd
 
 from src.target_selection import leave_first, leave_last, leave_random
 
+def align_input_target(
+    df_input: pd.DataFrame,
+    df_target: pd.DataFrame,
+    user_col_name: str = "user_id",
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Remove users with no target or input from input and target data."""
+    # Remove users with no target or input
+    users_with_targets = df_target[user_col_name].unique()
+    users_with_input = df_input[user_col_name].unique()
+    common_users = np.intersect1d(users_with_targets, users_with_input)
+
+    df_input = df_input[df_input[user_col_name].isin(common_users)]
+    df_target = df_target[df_target[user_col_name].isin(common_users)]
+    return df_input, df_target
+
+def filter_cold(
+    filter_col_name: str,
+    base: pd.DataFrame,
+    df_input: pd.DataFrame,
+    df_target: pd.DataFrame,
+    user_col_name: str = "user_id",
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Filters out cold items/users not present in base dataset.
+    If input or target is empty, the user is removed from both input and target.
+    Args:
+        filter_col_name (str): Column name to check for coldness (e.g., 'user_id' or 'item_id').
+        base (pd.DataFrame): Reference dataset (typically training)
+        df_input (pd.DataFrame): Input sequences to filter
+        df_target (pd.DataFrame): Target interactions to filter
+
+    Returns:
+        tuple: Filtered (df_input, df_target)
+    """
+    # Filter cold entities
+    warm_entities = base[filter_col_name].unique()
+    df_target = df_target[df_target[filter_col_name].isin(warm_entities)]
+    df_input = df_input[
+        df_input[filter_col_name].isin(warm_entities)
+    ]
+
+    # df_input, df_target = align_input_target(df_input, df_target, user_col_name)
+    return df_input, df_target
+
 
 class LeaveOneOutSplitter:
     """
@@ -51,36 +95,6 @@ class LeaveOneOutSplitter:
         self.timestamp_col = timestamp_col
         self.remove_cold_items = remove_cold_items
 
-    def _filter_cold_items(
-        self,
-        base: pd.DataFrame,
-        df_input: pd.DataFrame,
-        df_target: pd.DataFrame,
-    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Filters out cold items not present in base dataset.
-        First, removes cold items from holdout and input, then filters out users with no target.
-
-        Args:
-            base (pd.DataFrame): Reference dataset (typically training)
-            df_input (pd.DataFrame): Input sequences to filter
-            df_target (pd.DataFrame): Target interactions to filter
-
-        Returns:
-            tuple: Filtered (df_input, df_target)
-        """
-        # Filter cold items from holdout
-        warm_items = base[self.item_col].unique()
-        df_target = df_target[df_target[self.item_col].isin(warm_items)]
-
-        # Remove input sequences for holdout sequences where all items were removed
-        users_with_targets = df_target[self.user_col].unique()
-        df_input = df_input[
-            df_input[self.user_col].isin(users_with_targets)
-            & df_input[self.item_col].isin(warm_items)
-        ]
-
-        return df_input, df_target
 
     def split(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, ...]:
         """
@@ -117,13 +131,16 @@ class LeaveOneOutSplitter:
 
         if self.remove_cold_items:
             # Remove items from validation/test that weren't seen in training
-            validation_input, validation_target = self._filter_cold_items(
-                train, validation_input, validation_target
+            validation_input, validation_target = filter_cold(
+                self.item_col, train, validation_input, validation_target, self.user_col
             )
 
-            test_input, test_target = self._filter_cold_items(
-                train, test_input, test_target
+            test_input, test_target = filter_cold(
+                self.item_col, train, test_input, test_target, self.user_col
             )
+
+        validation_input, validation_target = align_input_target(validation_input, validation_target, self.user_col)
+        test_input, test_target = align_input_target(test_input, test_target, self.user_col)
 
         return train, validation_input, validation_target, test_input, test_target
 
@@ -155,26 +172,22 @@ class GlobalTimeSplitter:
     The splitting process:
     1. Initial split into train, validation, and test:
     - Train: All interactions before quantile (only sequences with ≥2 interactions)
-    - Test: All user interactions with last interaction after quantile
-    - Validation: Created via chosen strategy (by_user/last_train_item/by_time)
+    - Test Input and Holdout: All user interactions with last interaction after quantile form the test holdout,
+        all other interactions of the users form the test input.
+    - Validation Input and Target/Holdout: Built via chosen validation strategy (by_user/last_train_item/by_time).
+       For 'val_by_user' and 'last_train_item': the last item in a sequence becomes target.
+       For 'val_by_time': All user interactions with last interaction after validation quantile form the validation holdout.
 
-    2. For both validation and test sets:
-    - Holdout period interactions become potential targets
-    - All previous interactions form the input sequence
+    2. Cold items filtering (if remove_cold_items=True):
+    - Removes items from validation/test targets and input sequences that were not seen in training
+    - Remove users with empty input or target sequences
 
-    3. Cold items filtering (if remove_cold_items=True):
-    - Removes items from validation/test targets that weren't seen in training
-    - Removes corresponding input sequences that would predict cold items
+    3. Cold users filtering (if remove_cold_users=True):
+    - Removes users from validation/test that were not seen in training (no input for given target)
 
-    4. Cold users filtering (if remove_cold_users=True):
-    - Removes users from validation/test that weren't seen before (no input for given target)
-    - Removes corresponding target sequences
-
-    5. Target selection:
-    - For 'val_by_user' and 'last_train_item': the last item in a sequence becomes target
-    - For test and 'val_by_time': selects specified targets (first/last/random/all) from the holdout set
-    - Combines interactions before target items with input sequences
-    - Removes sequences with empty inputs
+    4. Target selection:
+    - For test and 'val_by_time': selects specified targets (first/last/random/all) from the test holdout set
+    - Combines holdout interactions before target items with input sequences
     """
 
     def __init__(
@@ -222,6 +235,7 @@ class GlobalTimeSplitter:
         """
         # Split into train and test by global time threshold
         train, test_input, test_holdout = self.split_by_time(data, self.quantile)
+        print("test_input users: ", test_input[self.user_col].nunique())
 
         # Create validation set according to specified strategy
         if self.validation_type == "by_user":
@@ -233,6 +247,7 @@ class GlobalTimeSplitter:
                 self.split_validation_last_train(train)
             )
         elif self.validation_type == "by_time":
+            # validation holdout is returned, target is selected below
             train, validation_input, validation_target = self.split_by_time(
                 train, self.validation_quantile
             )
@@ -252,14 +267,9 @@ class GlobalTimeSplitter:
                 validation_input, validation_target
             )
         test_input, test_target = self._process_target_type(test_input, test_holdout)
-
-        if self.remove_cold_users:
-            # Remove targets for zero-length inputs (e.g., target_type='last' when user had only one interaction)
-            validation_input, validation_target = self._filter_cold_users(
-                validation_input, validation_target
-            )
-            test_input, test_target = self._filter_cold_users(test_input, test_target)
-
+        print("test_input users after target processing: ", test_input[self.user_col].nunique())
+        validation_input, validation_target = align_input_target(validation_input, validation_target, self.user_col)
+        test_input, test_target = align_input_target(test_input, test_target, self.user_col)
         return train, validation_input, validation_target, test_input, test_target
 
     def split_by_time(
@@ -284,8 +294,7 @@ class GlobalTimeSplitter:
         time_threshold = data[self.timestamp_col].quantile(quantile)
 
         # We need at least two items in a train sequence for training
-        user_second_timestamp = data.groupby(self.user_col)[self.timestamp_col].apply(lambda x: x.iloc[1] if len(x) > 1 else None).dropna()
-        user_second_timestamp['timestamp'] = user_second_timestamp['timestamp'].astype(int)
+        user_second_timestamp = data.groupby(self.user_col)[self.timestamp_col].apply(lambda x: x.iloc[1] if len(x) > 1 else None).dropna().astype(int)
         train_users = user_second_timestamp[
             user_second_timestamp <= time_threshold
         ].index
@@ -295,8 +304,8 @@ class GlobalTimeSplitter:
         train = train[train[self.timestamp_col] <= time_threshold]
 
         # Test contains users with the last interaction after the time threshold
-        user_last_timestamp = data.groupby(self.user_col)[self.timestamp_col].apply(lambda x: x.iloc[-1])
-        test_users = user_last_timestamp[user_last_timestamp > time_threshold].index
+        user_max_timestamp = data.groupby(self.user_col)[self.timestamp_col].max()
+        test_users = user_max_timestamp[user_max_timestamp > time_threshold].index
 
         test = data[data[self.user_col].isin(test_users)]
 
@@ -358,7 +367,7 @@ class GlobalTimeSplitter:
 
         # Validation includes users with at least 2 interactions
         validation = train[
-            train.groupby(self.user_col)["time_idx_reversed"].transform(max) > 0
+            train.groupby(self.user_col)["time_idx_reversed"].transform("max") > 0
         ].drop(columns=["time_idx_reversed"])
         # Use last interaction as validation target
         validation_input, validation_target = leave_last(validation)
@@ -368,7 +377,7 @@ class GlobalTimeSplitter:
 
         # Keep only users with at least 2 interactions after validation split
         train = train[
-            train.groupby(self.user_col)["time_idx_reversed"].transform(max) > 1
+            train.groupby(self.user_col)["time_idx_reversed"].transform("max") > 1
         ].drop(columns=["time_idx_reversed"])
 
         return train, validation_input, validation_target
@@ -382,7 +391,8 @@ class GlobalTimeSplitter:
         test_target: pd.DataFrame,
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """
-        Handles cold user/item filtering based on configuration.
+        Handles cold (absent in training data) user/item filtering based on configuration.
+        If input or target is empty, the user is removed from both input and target/holdout.
 
         Args:
             train: Training data
@@ -395,73 +405,21 @@ class GlobalTimeSplitter:
             tuple: Filtered (validation_input, validation_target, test_input, test_target)
         """
         if self.remove_cold_items:
-            validation_input, validation_target = self._filter_cold_items(
-                train, validation_input, validation_target
+            validation_input, validation_target = filter_cold(
+                self.item_col, train, validation_input, validation_target, self.user_col
             )
-            test_input, test_target = self._filter_cold_items(
-                train, test_input, test_target
+            test_input, test_target = filter_cold(
+                self.item_col, train, test_input, test_target, self.user_col
             )
 
         if self.remove_cold_users:
-            validation_input, validation_target = self._filter_cold_users(
-                validation_input, validation_target
+            validation_input, validation_target = filter_cold(
+                self.user_col, train, validation_input, validation_target, self.user_col
             )
-
-            test_input, test_target = self._filter_cold_users(test_input, test_target)
+            test_input, test_target = filter_cold(
+                self.user_col, train, test_input, test_target, self.user_col
+            )
         return validation_input, validation_target, test_input, test_target
-
-    def _filter_cold_items(
-        self,
-        base: pd.DataFrame,
-        df_input: pd.DataFrame,
-        df_target: pd.DataFrame,
-    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Filters out cold items not present in base dataset.
-        First, removes cold items from holdout and input, then filters out users with no target.
-
-        Args:
-            base (pd.DataFrame): Reference dataset (typically training)
-            df_input (pd.DataFrame): Input sequences to filter
-            df_target (pd.DataFrame): Target interactions to filter
-
-        Returns:
-            tuple: Filtered (df_input, df_target)
-        """
-        # Filter cold items from holdout
-        warm_items = base[self.item_col].unique()
-        df_target = df_target[df_target[self.item_col].isin(warm_items)]
-
-        # Remove input sequences for holdout sequences where all items were removed
-        users_with_targets = df_target[self.user_col].unique()
-        df_input = df_input[
-            df_input[self.user_col].isin(users_with_targets)
-            & df_input[self.item_col].isin(warm_items)
-        ]
-
-        return df_input, df_target
-
-    def _filter_cold_users(
-        self,
-        df_input: pd.DataFrame,
-        df_target: pd.DataFrame,
-    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Filters out cold users with no input.
-
-        Args:
-            train (pd.DataFrame): Training data
-            df_input (pd.DataFrame): Input sequences to filter
-            df_target (pd.DataFrame): Target interactions to filter
-
-        Returns:
-            tuple: Filtered (df_input, df_target)
-        """
-        # Users must have both input and target sequences
-        warm_users = df_input[self.user_col].unique()
-        df_target = df_target[df_target[self.user_col].isin(warm_users)]
-
-        return df_input, df_target
 
     def _process_target_type(
         self,
@@ -479,6 +437,7 @@ class GlobalTimeSplitter:
             tuple: (input_data, target_data) processed according to target_type
         """
         if self.target_type == "all":
+            input_data, holdout_data = align_input_target(input_data, holdout_data, self.user_col)
             return input_data, holdout_data
 
         dispatch = {
@@ -488,5 +447,4 @@ class GlobalTimeSplitter:
         }
 
         input_data, target_data = dispatch[self.target_type]()
-
         return input_data, target_data
