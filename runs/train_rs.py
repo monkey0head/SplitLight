@@ -74,6 +74,9 @@ def main(config):
         task.close()
         
     if metrics_test is not None:
+        metrics_df = pd.Series(metrics_test).to_frame().T
+        metrics_df['random_state'] = config.random_state
+
         save_dir = os.path.join(
             config.save_dir,
             config.dataset.name,
@@ -81,10 +84,14 @@ def main(config):
             config.model.model_class,
         )
 
-        os.makedirs(save_dir, exist_ok=True)
+        os.makedirs(save_path, exist_ok=True)
+        save_path = os.path.join(save_dir, "test_metrics.csv")
 
-        save_path = os.path.join(save_dir, "test_metrics.yaml")
-        OmegaConf.save(metrics_test, save_path)
+        if os.path.exists(save_path):
+            metrics_df.to_csv(save_path, mode='a', header=False, index=False)
+        else:
+            metrics_df.to_csv(save_path, index=False)
+
         return metrics_test[config.optimize_metric]
     return None
     
