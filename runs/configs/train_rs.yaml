@@ -1,4 +1,4 @@
-cuda_visible_devices: 0
+cuda_visible_devices: 1
 random_state: 17
 
 defaults:
@@ -16,8 +16,8 @@ clearml_task_name: # train_rs_splitlight
 clearml_data_project_name: 
 clearml_data_task_name: 
 
-save_dir: 'res_full_prep'
-split_name: "leave-one-out"
+metrics_save_dir: 'results'
+split_name: "leave-one-out" #"leave-one-out"
 
 dataloader:
   batch_size: 128
@@ -34,7 +34,8 @@ seqrec_module:
 
 trainer_params:
   max_epochs: 500
-  devices: 1
+  accelerator: gpu
+  devices: [0]
 patience: ${model.patience}
 optimize_metric: test_NDCG@10
 
