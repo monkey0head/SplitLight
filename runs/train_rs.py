@@ -84,7 +84,7 @@ def main(config):
             config.model.model_class,
         )
 
-        os.makedirs(save_path, exist_ok=True)
+        os.makedirs(save_dir, exist_ok=True)
         save_path = os.path.join(save_dir, "test_metrics.csv")
 
         if os.path.exists(save_path):
