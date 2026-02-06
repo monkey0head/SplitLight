@@ -1,7 +1,7 @@
 prep_params: 
   item_min_count: 5
   seq_min_len: 5
-  users_sample: 0.2
+  users_sample: null
   core: True
   encoding: True
   drop_conseq_repeats: True
@@ -9,3 +9,5 @@ prep_params:
   save_to_disk: True
   shuffle_collision: True
   seed: 42
+
+tag: ''

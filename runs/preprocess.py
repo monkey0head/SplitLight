@@ -35,7 +35,7 @@ def main(config):
         **config.prep_params,
         **config.dataset.column_name,
         path_to_save=os.path.join(
-            data_path, config.dataset.name, "preprocessed.csv",
+            data_path, config.dataset.name, f"preprocessed{config.tag}.csv",
         )
         if save_to_disk
         else None,
