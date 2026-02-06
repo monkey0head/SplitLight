@@ -1,13 +1,13 @@
 prep_params: 
   item_min_count: 5
   seq_min_len: 5
-  users_sample: null
   core: True
   encoding: True
   drop_conseq_repeats: True
   filter_by_relevance: False
   save_to_disk: True
-  shuffle_collision: True
+  shuffle_collision: False
   seed: 42
+  users_sample: null
 
-tag: ''
+tag: null # tag name

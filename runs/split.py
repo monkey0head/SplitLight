@@ -17,13 +17,18 @@ from src.stats.base import base_stats
 def main(config):
     print(OmegaConf.to_yaml(config, resolve=True))
 
-    data = pd.read_csv(os.path.join(config.data_path, config.dataset.name, "preprocessed.csv"))
+    suffix = '_' + config.tag if config.tag is not None else '' 
+    data = pd.read_csv(os.path.join(config.data_path, config.dataset.name, f"preprocessed{suffix}.csv"))
 
     if config.split_type == "leave-one-out":
         splitter = LeaveOneOutSplitter()
-        dir_name = os.path.join(
-            config.splitted_data_path, config.dataset.name, config.split_type
-        )
+        split_folder_name = config.split_type
+        if config.split_params.remove_cold_items:
+            split_folder_name += "-no_cold_items"
+
+        if config.tag is not None:
+            split_folder_name += "-tag_" + config.tag
+
         train, validation_input, validation_target, test_input, test_target = (
             splitter.split(data)
         )
@@ -37,13 +42,15 @@ def main(config):
             raise ValueError(
                 "'global_timesplit' split must be run with parameter 'quantile'"
             )
+        split_folder_name = f"GTS-q{config.split_params.quantile}-val_{config.split_params.validation_type}-target_{config.split_params.target_type}"
+        if config.split_params.remove_cold_items:
+            split_folder_name += "-no_cold_items"
+        if config.split_params.remove_cold_users:
+            split_folder_name += "-no_cold_users"        
 
-        dir_name = os.path.join(
-            config.splitted_data_path,
-            config.dataset.name,
-            "GTS" + "-" + q +"-val_" + config.split_params.validation_type + "-target_" + config.split_params.target_type,
-        )
-
+        if config.tag is not None:
+            split_folder_name += "-tag_" + config.tag
+            
         train, validation_input, validation_target, test_input, test_target = (
             splitter.split(data)
         )
@@ -58,6 +65,11 @@ def main(config):
     print(f'test_target\n', base_stats(test_target))
 
     if config.save_results:
+        dir_name = os.path.join(
+            config.splitted_data_path,
+            config.dataset.name,
+            split_folder_name,
+        )
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
 
