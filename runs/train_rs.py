@@ -290,7 +290,7 @@ def save_metrics(metrcis_dict, config, prefix='val'):
     metrics_df['random_state'] = config.random_state
 
     save_dir = os.path.join(
-        config.save_dir,
+        config.metrics_save_dir,
         config.dataset.name,
         config.split_name,
         config.model.model_class,
