@@ -61,12 +61,14 @@ def main(config):
 
     if config.calc_val_metrics:
         recs_validation = predict(trainer, seqrec_module, validation_input, config, task, prefix='val')
-        evaluate(recs_validation, validation_target, train, task, config, prefix='val')
+        metrics_val = evaluate(recs_validation, validation_target, train, task, config, prefix='val')
+        save_metrics(metrics_val, config, prefix='val')
 
     metrics_test = None
     if config.calc_test_metrics:
         recs_test = predict(trainer, seqrec_module, test_input, config, task, prefix='test')
         metrics_test = evaluate(recs_test, test_target, train, task, config, prefix='test')
+        save_metrics(metrics_test, config, prefix='test')
 
     log_peak_memory_stats(task)
     
@@ -280,8 +282,27 @@ def evaluate(recs, test, train, task, config, prefix='test'):
 
     if task is not None:
         task.get_logger().report_single_value(f"{prefix}_eval_time", eval_time)
+    
     return metrics_dct
 
-if __name__ == "__main__":
+def save_metrics(metrcis_dict, config, prefix='val'):
+    metrics_df = pd.Series(metrcis_dict).to_frame().T
+    metrics_df['random_state'] = config.random_state
 
+    save_dir = os.path.join(
+        config.save_dir,
+        config.dataset.name,
+        config.split_name,
+        config.model.model_class,
+    )
+
+    os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, f"{prefix}_metrics.csv")
+
+    if os.path.exists(save_path):
+        metrics_df.to_csv(save_path, mode='a', header=False, index=False)
+    else:
+        metrics_df.to_csv(save_path, index=False)
+
+if __name__ == "__main__":
     main()

@@ -29,13 +29,15 @@ def main(config):
 
     with open_dict(config):
         save_to_disk = config.prep_params.pop("save_to_disk")
+    
+    suffix = '_' + config.tag if config.tag is not None else '' 
 
     preprocess(
         data=data,
         **config.prep_params,
         **config.dataset.column_name,
         path_to_save=os.path.join(
-            data_path, config.dataset.name, "preprocessed.csv",
+            data_path, config.dataset.name, f"preprocessed{suffix}.csv",
         )
         if save_to_disk
         else None,

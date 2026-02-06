@@ -413,9 +413,10 @@ class GlobalTimeSplitter:
             )
 
         if self.remove_cold_users:
-            validation_input, validation_target = filter_cold(
-                self.user_col, train, validation_input, validation_target, self.user_col
-            )
+            if self.validation_type != 'by_user':
+                validation_input, validation_target = filter_cold(
+                    self.user_col, train, validation_input, validation_target, self.user_col
+                )
             test_input, test_target = filter_cold(
                 self.user_col, train, test_input, test_target, self.user_col
             )

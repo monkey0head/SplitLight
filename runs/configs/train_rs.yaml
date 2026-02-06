@@ -16,11 +16,12 @@ clearml_task_name: # train_rs_splitlight
 clearml_data_project_name: 
 clearml_data_task_name: 
 
+save_dir: 'res_full_prep'
 split_name: "leave-one-out"
 
 dataloader:
-  batch_size: 256
-  test_batch_size: 256
+  batch_size: 128
+  test_batch_size: 128
   num_workers: 2
   validation_size: 5000 
 
@@ -33,6 +34,7 @@ seqrec_module:
 
 trainer_params:
   max_epochs: 500
+  devices: 1
 patience: ${model.patience}
 optimize_metric: test_NDCG@10
 
