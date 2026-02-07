@@ -16,7 +16,7 @@ clearml_task_name: # train_rs_splitlight
 clearml_data_project_name: 
 clearml_data_task_name: 
 
-save_dir: 'res_full_prep'
+metrics_save_dir: 'results'
 split_name: "leave-one-out"
 
 dataloader:
