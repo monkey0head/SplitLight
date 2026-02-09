@@ -1,7 +1,7 @@
 ![Teaser](streamlit_ui/pictures/splitlight.png)
 
 
-# SplitLight: Explore your RecSys dataset and split
+# SplitLight: Explore Your RecSys Dataset and Split
 
 ![PyData](https://img.shields.io/badge/data-Pandas-EE4C2C)
 [![Hydra](https://img.shields.io/badge/config-Hydra-ADD8E6)](https://github.com/facebookresearch/hydra)
@@ -19,7 +19,7 @@ SplitLight can be used in Jupyter/Python scripts for comprehensive analysis and 
 - **Flexible workflow** — Use the Streamlit app for ad-hoc audits, or call `src/stats` and `src/splits` from your own pipelines and notebooks (see the [demo notebook](demo.ipynb)). 
 
 
-## Quick start
+## Quick Start
 
 ```bash
 pip install -r requirements.txt
@@ -29,7 +29,7 @@ export SEQ_SPLITS_DATA_PATH=$(pwd)/data
 - Requirements file: `requirements.txt`
 - Your datasets live under `data/` (see layout below).
 
-## Data layout
+## Data Layout
 
 SplitLight expects each dataset under `data/<DatasetName>/` with either a `raw.csv` (original schema) or `preprocessed.csv` (standard schema).
 
@@ -80,7 +80,7 @@ What you can explore:
 - Cold-start exposure of users and items
 - Compare splits side-by-side and analyze time-gap deltas between input and target
 
-## What SplitLight checks
+## What SplitLight Checks
 
 | Category                | Description                                                                                                                                                                                          |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -95,7 +95,7 @@ What you can explore:
 ![Summary](streamlit_ui/pictures/summary.png)
 The Summary page in the Streamlit UI provides a high-level overview of dataset and split health. It aggregates key diagnostics into a single dashboard, helping you quickly identify quality issues and distribution imbalances.
 
-### What it provides
+### What It Provides
 - Instant snapshot of dataset quality and split integrity  
 - Compact visualization of core, temporal, and leakage statistics  
 - Color-coded signals to highlight potential issues at a glance 
@@ -109,10 +109,6 @@ Each metric is assigned a health status based on configurable thresholds:
 Thresholds and color rules for the Summary view can be customized in  
 [`streamlit_ui/config/summary.yml`](streamlit_ui/config/summary.yml).
 
-## Configuration
-
-- UI thresholds and labels: `streamlit_ui/config/summary.yml`
-- Dataset schemas: `runs/configs/dataset/*.yaml`
 
 ## Project structure (key parts)
 
@@ -135,7 +131,7 @@ Thresholds and color rules for the Summary view can be customized in
 - **Q: Why should I care about split quality?**  
   A: The split defines what you are actually evaluating. Leaky or inconsistent splits lead to overestimated metrics and results that don’t transfer to real deployment. SplitLight helps you document and justify your split choice and catch issues early.
 
-## CLI Utilities for experimenting
+## CLI Utilities For Experimenting
 These CLI tools are provided to illustrate a complete pipeline for preprocessing and splitting datasets. The results of the preprocessing and splitting could be audited using the SplitLight. To train a sequential model on the split data and evaluate, how different data preprocessing and splitting strategies affect the model performance, use the example `python runs/train_rs.py`.
 
 ### Preprocess
@@ -183,7 +179,7 @@ python runs/split.py \
 - Config: `runs/configs/split.yaml`
 - Output: splits are saved under `data/<DatasetName>/<split_name>/`
 
-### Train RS model on selected data split 
+### Train RS Model on Selected Data Split 
 
 ```bash
 export PYTHONPATH="$(pwd):$PYTHONPATH"
