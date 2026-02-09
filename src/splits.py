@@ -235,7 +235,6 @@ class GlobalTimeSplitter:
         """
         # Split into train and test by global time threshold
         train, test_input, test_holdout = self.split_by_time(data, self.quantile)
-        print("test_input users: ", test_input[self.user_col].nunique())
 
         # Create validation set according to specified strategy
         if self.validation_type == "by_user":
@@ -267,7 +266,6 @@ class GlobalTimeSplitter:
                 validation_input, validation_target
             )
         test_input, test_target = self._process_target_type(test_input, test_holdout)
-        print("test_input users after target processing: ", test_input[self.user_col].nunique())
         validation_input, validation_target = align_input_target(validation_input, validation_target, self.user_col)
         test_input, test_target = align_input_target(test_input, test_target, self.user_col)
         return train, validation_input, validation_target, test_input, test_target
