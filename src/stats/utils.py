@@ -79,7 +79,6 @@ def get_deltas(data: pd.DataFrame, col="user_id", timestamp="timestamp") -> pd.D
         DataFrame: The original DataFrame with an added 'delta' column.
     """
     data = data.copy().reset_index(drop=True)
-    data[timestamp] = data[timestamp].astype(int)
 
     # Calculate time difference between consecutive interactions per user
     data["delta"] = (
