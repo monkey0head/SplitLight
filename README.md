@@ -1,7 +1,7 @@
 ![Teaser](streamlit_ui/pictures/splitlight.png)
 
 
-# SplitLight: Explore Your RecSys Dataset and Split
+# 🌟 SplitLight: Explore Your RecSys Dataset and Split
 
 ![PyData](https://img.shields.io/badge/data-Pandas-EE4C2C)
 [![Hydra](https://img.shields.io/badge/config-Hydra-ADD8E6)](https://github.com/facebookresearch/hydra)
@@ -9,8 +9,8 @@
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE) 
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11-ff69b4)](https://www.python.org/)
 
-SplitLight is a lightweight framework for auditing recommender-system datasets and evaluating splitting results. Its main goal is to help you produce trustworthy splits and justify split choices via transparent, data-driven diagnostics.
-SplitLight can be used in Jupyter/Python scripts for comprehensive analysis and offers an easy-to-use Streamlit UI for interactive exploration, health checks, and side-by-side comparisons.
+**SplitLight** is a lightweight framework for auditing recommender-system datasets and evaluating splitting results. Its main goal is to help you produce **trustworthy splits** and justify split choices via transparent, data-driven diagnostics.
+**SplitLight** can be used in Jupyter/Python scripts for comprehensive analysis and offers an easy-to-use Streamlit UI for interactive exploration, health checks, and side-by-side comparisons.
 
 ### Why SplitLight?
 
@@ -18,6 +18,8 @@ SplitLight can be used in Jupyter/Python scripts for comprehensive analysis and 
 - **Transparent diagnostics** — Instead of treating the split as a black box, you get concrete stats: shared interactions, temporal overlap, leaked targets, cold user/item shares, and temporal deltas between input and target.
 - **Flexible workflow** — Use the Streamlit app for ad-hoc audits, or call `src/stats` and `src/splits` from your own pipelines and notebooks (see the [demo notebook](demo.ipynb)). 
 
+> [!NOTE]
+> See short [**video walkthrough**](https://drive.google.com/file/d/15ZSKai7dYXBVmcqPIuV4qsM9bbsRxNY4/view) of SplitLight motivation and usage.
 
 ## Quick Start
 
@@ -110,7 +112,7 @@ Thresholds and color rules for the Summary view can be customized in
 [`streamlit_ui/config/summary.yml`](streamlit_ui/config/summary.yml).
 
 
-## Project structure (key parts)
+## Project Structure (Key Parts)
 
 - **`src/stats/`** — Core diagnostics: `base` (core/temporal stats), `leaks`, `cold`, `duplicates`, `temporal`, `plots`. Use these in scripts or notebooks for custom analyses.
 - **`streamlit_ui/pages/`** — Streamlit pages for load, Summary, core/temporal stats, repeated consumption, leakage, cold start, and split comparison.
@@ -179,7 +181,7 @@ python runs/split.py \
 - Config: `runs/configs/split.yaml`
 - Output: splits are saved under `data/<DatasetName>/<split_name>/`
 
-### Train RS Model on Selected Data Split 
+### Train Recommender Model on Selected Data Split 
 
 ```bash
 export PYTHONPATH="$(pwd):$PYTHONPATH"
@@ -188,5 +190,14 @@ python runs/train_rs.py dataset=Beauty split_name=leave-one-out
 ```
 - Config: `runs/configs/train_rs.yaml`
 
-## Cite
+
+## Contributing
+We welcome and appreciate all forms of contributions to make SplitLight better! If you have ideas to improve SplitLight, please feel free to submit a Pull Request.
+
+## Citation
 If you use SplitLight in research or production, please cite this repository.
+
+---
+<div align="center">
+We welcome contributions from the community! 🤝
+</div>
