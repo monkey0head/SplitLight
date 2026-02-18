@@ -2,7 +2,7 @@ from typing import Dict, Optional
 
 import pandas as pd
 
-from .utils import get_conseq_duplicates
+from .utils import get_consec_duplicates
 
 
 def get_item_repeat(data: pd.DataFrame, user_id: str = 'user_id', item_id: str = 'item_id') -> Optional[pd.DataFrame]:
@@ -33,7 +33,7 @@ def get_all_duplicates(data: pd.DataFrame, user_id: str = 'user_id', item_id: st
     data = data.copy()
     
     # Add all three flags
-    data = get_conseq_duplicates(data, user_id, item_id, timestamp)
+    data = get_consec_duplicates(data, user_id, item_id, timestamp)
     data = get_item_repeat(data, user_id, item_id)
     
     return data
@@ -95,7 +95,7 @@ def duplicates_stats(data: pd.DataFrame, user_id: str='user_id', item_id: str = 
     data_all_flags = get_all_duplicates(data, user_id, item_id, timestamp)
 
     stats_dict = {
-        "Consecutive item duplicates": _duplicate_counts(data_all_flags, "conseq_duplicate", count_no_duplicates, user_id),
+        "Consecutive item duplicates": _duplicate_counts(data_all_flags, "consec_duplicate", count_no_duplicates, user_id),
         "Non-unique item interactions": _duplicate_counts(data_all_flags, "item_duplicate", count_no_duplicates, user_id),
     }
 

@@ -89,7 +89,7 @@ def get_deltas(data: pd.DataFrame, col="user_id", timestamp="timestamp") -> pd.D
     return data
 
 
-def get_conseq_duplicates(data: pd.DataFrame, user_id: str = "user_id", item_id: str = "item_id", timestamp: str = "timestamp") -> Tuple[pd.DataFrame, pd.Series]:
+def get_consec_duplicates(data: pd.DataFrame, user_id: str = "user_id", item_id: str = "item_id", timestamp: str = "timestamp") -> Tuple[pd.DataFrame, pd.Series]:
     """
     Identifies consecutive duplicate interactions in the dataset.
 
@@ -97,13 +97,13 @@ def get_conseq_duplicates(data: pd.DataFrame, user_id: str = "user_id", item_id:
         data (pd.DataFrame): A DataFrame containing user interactions.
 
     Returns:
-        DataFrame: The original DataFrame with an added 'conseq_duplicate' column marking consecutive duplicates
+        DataFrame: The original DataFrame with an added 'consec_duplicate' column marking consecutive duplicates
     """
     data_sorted = data.copy()
     data_sorted.sort_values([user_id, timestamp], kind="stable", inplace=True)
     data_sorted["shifted"] = data_sorted.groupby(user_id)[item_id].shift(periods=1)
 
-    data_sorted["conseq_duplicate"] = (
+    data_sorted["consec_duplicate"] = (
         data_sorted[item_id] == data_sorted["shifted"]
     ).fillna(False)
 

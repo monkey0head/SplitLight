@@ -3,7 +3,7 @@ prep_params:
   seq_min_len: 5
   core: True
   encoding: True
-  drop_conseq_repeats: True
+  drop_consec_repeats: True
   filter_by_relevance: False
   save_to_disk: True
   shuffle_collision: False
