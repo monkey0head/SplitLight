@@ -48,7 +48,7 @@ def core_filter(
     data,
     item_min_count=5,
     seq_min_len=5,
-    drop_conseq_repeats=False,
+    drop_consec_repeats=False,
     user_id="user_id",
     item_id="item_id",
     timestamp="timestamp",
@@ -59,12 +59,12 @@ def core_filter(
     :param data: _description_
     :param item_min_count: _description_, defaults to 5
     :param seq_min_len: _description_, defaults to 5
-    :param drop_conseq_repeats: if remove consecutive repeated items, defaults to False
+    :param drop_consec_repeats: if remove consecutive repeated items, defaults to False
     """
     step = 1
 
     data = data.copy()
-    if drop_conseq_repeats:
+    if drop_consec_repeats:
         data = drop_consecutive_repeats(data, user_id, item_id, timestamp)
 
         if verbose:
@@ -82,7 +82,7 @@ def core_filter(
             data, min_count=item_min_count, col_name=item_id, verbose=verbose
         )
 
-        if drop_conseq_repeats:
+        if drop_consec_repeats:
             data = drop_consecutive_repeats(
                 data, user_id=user_id, item_id=item_id, timestamp=timestamp
             )
