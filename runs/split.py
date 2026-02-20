@@ -36,13 +36,11 @@ def main(config):
     elif config.split_type == "global_timesplit":
         splitter = GlobalTimeSplitter(**config.split_params)
 
-        if config.split_params.quantile is not None:
-            q = "q0" + str(config.split_params.quantile)[2:]
-        else:
+        if config.split_params.quantile is None:
             raise ValueError(
                 "'global_timesplit' split must be run with parameter 'quantile'"
             )
-        split_folder_name = f"GTS-q{config.split_params.quantile}-val_{config.split_params.validation_type}-target_{config.split_params.target_type}"
+        split_folder_name = f"GTS-q{str(config.split_params.quantile).replace('.', '')}-val_{config.split_params.validation_type}-target_{config.split_params.target_type}"
         if config.split_params.remove_cold_items:
             split_folder_name += "-no_cold_items"
         if config.split_params.remove_cold_users:
@@ -58,11 +56,11 @@ def main(config):
     else:
         raise ValueError("Wrong type of splitter.")
 
-    print(f'train\n', base_stats(train))
-    print(f'validation_input\n', base_stats(validation_input))
-    print(f'validation_target\n', base_stats(validation_target))
-    print(f'test_input\n', base_stats(test_input))
-    print(f'test_target\n', base_stats(test_target))
+    print('train\n', base_stats(train))
+    print('validation_input\n', base_stats(validation_input))
+    print('validation_target\n', base_stats(validation_target))
+    print('test_input\n', base_stats(test_input))
+    print('test_target\n', base_stats(test_target))
 
     if config.save_results:
         dir_name = os.path.join(
