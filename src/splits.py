@@ -11,6 +11,7 @@ def align_input_target(
     df_input: pd.DataFrame,
     df_target: pd.DataFrame,
     user_col_name: str = "user_id",
+    keep_targets_with_empty_inputs: bool = False
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Remove users with no target or input from input and target data."""
     # Remove users with no target or input
@@ -19,7 +20,8 @@ def align_input_target(
     common_users = np.intersect1d(users_with_targets, users_with_input)
 
     df_input = df_input[df_input[user_col_name].isin(common_users)]
-    df_target = df_target[df_target[user_col_name].isin(common_users)]
+    if not keep_targets_with_empty_inputs:
+        df_target = df_target[df_target[user_col_name].isin(common_users)]
     return df_input, df_target
 
 def filter_cold(
@@ -139,8 +141,8 @@ class LeaveOneOutSplitter:
                 self.item_col, train, test_input, test_target, self.user_col
             )
 
-        validation_input, validation_target = align_input_target(validation_input, validation_target, self.user_col)
-        test_input, test_target = align_input_target(test_input, test_target, self.user_col)
+        validation_input, validation_target = align_input_target(validation_input, validation_target, self.user_col, keep_targets_with_empty_inputs=False)
+        test_input, test_target = align_input_target(test_input, test_target, self.user_col, keep_targets_with_empty_inputs=False)
 
         return train, validation_input, validation_target, test_input, test_target
 
@@ -265,9 +267,14 @@ class GlobalTimeSplitter:
             validation_input, validation_target = self._process_target_type(
                 validation_input, validation_target
             )
+        keep_targets_with_empty_inputs = self.target_type == 'all'
+        validation_input, validation_target = align_input_target(validation_input, validation_target, self.user_col, 
+        keep_targets_with_empty_inputs=keep_targets_with_empty_inputs)
+        
         test_input, test_target = self._process_target_type(test_input, test_holdout)
-        validation_input, validation_target = align_input_target(validation_input, validation_target, self.user_col)
-        test_input, test_target = align_input_target(test_input, test_target, self.user_col)
+        test_input, test_target = align_input_target(test_input, test_target, self.user_col, keep_targets_with_empty_inputs=keep_targets_with_empty_inputs)
+
+        
         return train, validation_input, validation_target, test_input, test_target
 
     def split_by_time(
@@ -436,7 +443,7 @@ class GlobalTimeSplitter:
             tuple: (input_data, target_data) processed according to target_type
         """
         if self.target_type == "all":
-            input_data, holdout_data = align_input_target(input_data, holdout_data, self.user_col)
+            input_data, holdout_data = align_input_target(input_data, holdout_data, self.user_col, keep_targets_with_empty_inputs=True)
             return input_data, holdout_data
 
         dispatch = {
