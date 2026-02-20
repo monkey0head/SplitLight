@@ -31,6 +31,8 @@ export SEQ_SPLITS_DATA_PATH=$(pwd)/data
 - Requirements file: `requirements.txt`
 - Your datasets live under `data/` (see layout below).
 
+Install the requirements and set the environment variables. Then, run the Streamlit as described [here](#streamlit-ui) to get the data overview or start jupyter and explore the data and splits in depth (see the [demo notebook](demo.ipynb)).
+
 ## Data Layout
 
 SplitLight expects each dataset under `data/<DatasetName>/` with either a `raw.csv` (original schema) or `preprocessed.csv` (standard schema).
