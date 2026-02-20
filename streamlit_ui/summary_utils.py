@@ -626,7 +626,7 @@ def precompute_category_summary(
 
     # Reference • Repetitive
     dups = get_all_duplicates(base_df).mean(axis=0)
-    for m in ["conseq_duplicate", "item_duplicate"]:
+    for m in ["consec_duplicate", "item_duplicate"]:
         mmeta  = meta_ref.get(m, {}) or {}
         title  = mmeta.get("label", stats_map.get(m, m))
         th_cfg = base_thresholds_ref.get(m, {}) or {}
@@ -863,7 +863,7 @@ def build_reference_only_summary(
 
     # Reference • Repetitive (duplicates)
     dups = get_all_duplicates(base_df).mean(axis=0)
-    for m in ["conseq_duplicate", "item_duplicate"]:
+    for m in ["consec_duplicate", "item_duplicate"]:
         mmeta  = meta_ref.get(m, {}) or {}
         title  = mmeta.get("label", stats_map.get(m, m))
         th_cfg = base_thresholds_ref.get(m, {}) or {}

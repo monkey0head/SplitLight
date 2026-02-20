@@ -168,7 +168,7 @@ def render_metrics_section(title, subset_name, metrics, stats_df, qual_df,
 
 def render_duplicate_cards(df):
     duplicates = get_all_duplicates(df).mean(axis=0)
-    metrics = ["conseq_duplicate", "item_duplicate"]
+    metrics = ["consec_duplicate", "item_duplicate"]
     cols = st.columns(len(metrics))
     for i, metric in enumerate(metrics):
         value = duplicates[metric]

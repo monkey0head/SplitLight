@@ -27,7 +27,7 @@ stats_map = {
     'median_item_occurrence': 'Median Item Occurrence',
     'mean_user_activity': 'Avg. User Activity',
     'median_user_activity': 'Median User Activity',
-    'conseq_duplicate':'Consec. Duplicates',
+    'consec_duplicate':'Consec. Duplicates',
     'item_duplicate':'Repetitive Interact.',
 
 }

@@ -20,7 +20,7 @@ page_config()
 
 type_map = {
     'Repetitive Interact.':'item_duplicate',
-    'Consecutive Repeats':'conseq_duplicate',
+    'Consecutive Repeats':'consec_duplicate',
 }
 
 
