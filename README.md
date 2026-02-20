@@ -138,6 +138,8 @@ Thresholds and color rules for the Summary view can be customized in
 ## CLI Utilities For Experimenting
 These CLI tools are provided to illustrate a complete pipeline for preprocessing and splitting datasets. The results of the preprocessing and splitting could be audited using the SplitLight. To train a sequential model on the split data and evaluate, how different data preprocessing and splitting strategies affect the model performance, use the example `python runs/train_rs.py`.
 
+See [README](runs/README.md) for more detailed explanation on CLI tools and experimental setup for splitting results in `/data` dir. 
+
 ### Preprocess
 
 Standardize and clean your raw interaction logs.
@@ -158,7 +160,7 @@ See [`src/splits.py`](src/splits.py) for implementation details.
 
 ```bash
 # Leave-one-out (LOO)
-python runs/split.py split_type=leave-one-out
+python runs/split.py split_type=leave-one-out split_params.remove_cold_items=True
 
 # Global time split (GTS)
 python runs/split.py \

@@ -104,10 +104,18 @@ python runs/split.py \
   split_params.target_type=last
 ```
 
+### Splitting configuration used
+We applied the following data splits for model training and evaluation:
+- **LOO with cold items filtering** `split_params.remove_cold_items=True`. (refer to `leave-one-out-no_cold_items` in `/data/<DatasetName>/`)
+- **Global Time Split (GTS) with cold items removal** `split_params.remove_cold_items=True` **and Last item target** `split_params.target_type=last`. The last item from holdout subset become target, all before go to input, cold items are removed from both inputs and targets. Target without inputs and vise versa are removed. (refer to `GTS-q09-val_by_time-target_last-no_cold_items` in `/data/<DatasetName>/`)
+
+For cold users and item analysis we applied  **Global Time Split (GTS) with All items target**: `split_params.target_type=all`, `split_params.remove_cold_items=False`. It preserves cold users and items and leaves targets with no inputs (cold users in case of All items target). (refer to `GTS-q09-val_by_time-target_all` in `/data/<DatasetName>/`)
+
+
 ### Example: Using alternative preprocessing variants
 
 To run splits on modified preprocessing outputs
-(e.g. shuffled timestamps), pass the same `tag`:
+(e.g. shuffled timestamps), pass the `tag` assigned to required preprocessing setup on preprocessing stage:
 
 ```bash
 python runs/split.py \
