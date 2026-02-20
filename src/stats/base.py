@@ -17,6 +17,7 @@ def get_ts_collisions(data: pd.DataFrame, user_id: str = "user_id", timestamp: s
     Returns:
         DataFrame with 'timestamp_collisions' column added
     """
+    data = data.copy()
     data['timestamp_collisions'] = data.duplicated(subset=[user_id, timestamp], keep='first')
     
     return data
