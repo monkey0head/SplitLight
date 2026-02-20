@@ -21,7 +21,7 @@ def main(config):
     data = pd.read_csv(os.path.join(config.data_path, config.dataset.name, f"preprocessed{suffix}.csv"))
 
     if config.split_type == "leave-one-out":
-        splitter = LeaveOneOutSplitter()
+        splitter = LeaveOneOutSplitter(remove_cold_items=config.split_params.remove_cold_items)
         split_folder_name = config.split_type
         if config.split_params.remove_cold_items:
             split_folder_name += "-no_cold_items"
