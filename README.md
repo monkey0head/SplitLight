@@ -3,20 +3,31 @@
 
 # 🌟 SplitLight: Explore Your RecSys Dataset and Split
 
-![PyData](https://img.shields.io/badge/data-Pandas-EE4C2C)
-[![Hydra](https://img.shields.io/badge/config-Hydra-ADD8E6)](https://github.com/facebookresearch/hydra)
-[![Streamlit](https://img.shields.io/badge/UI-Streamlit-%238a91faff)](https://streamlit.io/)
-[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE) 
-[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11-ff69b4)](https://www.python.org/)
+<a href="https://arxiv.org/abs/2602.19339"><img src="https://img.shields.io/badge/arXiv-2602.19339-b31b1b.svg" height=22.5><a>
+[![Cite](https://img.shields.io/badge/Cite-BibTeX-EE4C2C)](https://github.com/monkey0head/SplitLight?tab=readme-ov-file#-citation)
+[![Streamlit](https://img.shields.io/badge/UI-Streamlit-ff69b4)](https://streamlit.io/)
+[![Hydra](https://img.shields.io/badge/Config-Hydra-%238a91faff)](https://github.com/facebookresearch/hydra)
+[![License](https://img.shields.io/badge/License-MIT-ADD8E6)](./LICENSE) 
+[![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11-green)](https://www.python.org/)
 
-**SplitLight** is a lightweight framework for auditing recommender-system datasets and evaluating splitting results. Its main goal is to help you produce **trustworthy splits** and justify split choices via transparent, data-driven diagnostics.
+**SplitLight** is a lightweight framework for auditing recommender-system datasets and evaluating splitting results. Its main goal is to help you produce **trustworthy data preprocessing and splits** and justify split choices via transparent, data-driven diagnostics.
 **SplitLight** can be used in Jupyter/Python scripts for comprehensive analysis and offers an easy-to-use Streamlit UI for interactive exploration, health checks, and side-by-side comparisons.
 
 ### Why SplitLight?
 
 - **Trustworthy evaluation** — Poor or inconsistent train/validation/test splits lead to overoptimistic metrics and non-reproducible research. SplitLight helps you detect leakage, cold-start issues, and distribution shifts before training.
 - **Transparent diagnostics** — Instead of treating the split as a black box, you get concrete stats: shared interactions, temporal overlap, leaked targets, cold user/item shares, and temporal deltas between input and target.
-- **Flexible workflow** — Use the Streamlit app for ad-hoc audits, or call `src/stats` and `src/splits` from your own pipelines and notebooks (see the [demo notebook](demo.ipynb)). 
+- **Flexible workflow** — Use the Streamlit app for ad-hoc audits, or call `src/stats` and `src/splits` from your own pipelines and notebooks (see the [demo notebook](demo.ipynb)).
+
+
+<div align="center">
+    <a >
+        <img src="/home/jovyan/gusak/SplitLight/streamlit_ui/pictures/pipeline.png" width="100%">
+    </a>
+    <p>
+        <i> SplitLight in a data-preparation pipeline. From the raw dataset to split subsets, SplitLight audits data, flags problems, and enables side-by-side comparison of alternative splits to justify the selected evaluation protocol.</i>
+    </p>
+</div>
 
 > [!NOTE]
 > See short [**video walkthrough**](https://drive.google.com/file/d/15ZSKai7dYXBVmcqPIuV4qsM9bbsRxNY4/view) of SplitLight motivation and usage.
@@ -31,7 +42,7 @@ export SEQ_SPLITS_DATA_PATH=$(pwd)/data
 - Requirements file: `requirements.txt`
 - Your datasets live under `data/` (see layout below).
 
-Install the requirements and set the environment variables. Then, run the Streamlit as described [here](#streamlit-ui) to get the data overview or start jupyter and explore the data and splits in depth (see the [demo notebook](demo.ipynb)).
+Install the requirements and set the environment variables. Then, run the Streamlit as described [here](#streamlit-ui) to get the data overview or start jupyter notebook and explore the data and splits in depth (see the [demo notebook](demo.ipynb)).
 
 ## Data Layout
 
@@ -109,6 +120,9 @@ Each metric is assigned a health status based on configurable thresholds:
 - 🟡 **Need Attention** — mild irregularity detected  
 - 🔴 **Warning** — potential data issue or leakage risk 
 
+
+<div align="center"> <video src="https://github.com/user-attachments/assets/f2114376-311c-474b-a511-2ffe17fc59f1" controls style="max-width: 90%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"> Your browser does not support the video tag. <a href="https://github.com/user-attachments/assets/f2114376-311c-474b-a511-2ffe17fc59f1">Watch the demo video</a>. </video> <p style="font-size: 12px; color: #666; margin-top: 8px;"> ▶ Click to play the short SplitLight's Summary Dashboard showcase. </p> </div>
+
 ### Configuration
 Thresholds and color rules for the Summary view can be customized in  
 [`streamlit_ui/config/summary.yml`](streamlit_ui/config/summary.yml).
@@ -138,7 +152,7 @@ Thresholds and color rules for the Summary view can be customized in
 ## CLI Utilities For Experimenting
 These CLI tools are provided to illustrate a complete pipeline for preprocessing and splitting datasets. The results of the preprocessing and splitting could be audited using the SplitLight. To train a sequential model on the split data and evaluate, how different data preprocessing and splitting strategies affect the model performance, use the example `python runs/train_rs.py`.
 
-See [README](runs/README.md) for more detailed explanation on CLI tools and experimental setup for splitting results in `/data` dir. 
+See [runs/README.md](runs/README.md) for more detailed explanation on CLI tools and experimental setup for splitting results in `/data` dir. 
 
 ### Preprocess
 
@@ -199,7 +213,18 @@ python runs/train_rs.py dataset=Beauty split_name=leave-one-out
 We welcome and appreciate all forms of contributions to make SplitLight better! If you have ideas to improve SplitLight, please feel free to submit a Pull Request.
 
 ## Citation
-If you use SplitLight in research or production, please cite this repository.
+If you use SplitLight in research or production, please consider citing our paper:
+
+```bib
+@misc{splitlight2026,
+      title={SplitLight: An Exploratory Toolkit for Recommender Systems Datasets and Splits}, 
+      author={Anna Volodkevich and Dmitry Anikin and Danil Gusak and Anton Klenitskiy and Evgeny Frolov and Alexey Vasilev},
+      year={2026},
+      eprint={2602.19339},
+      archivePrefix={arXiv},
+      primaryClass={cs.IR}
+}
+```
 
 ---
 <div align="center">
