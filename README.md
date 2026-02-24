@@ -4,7 +4,7 @@
 # 🌟 SplitLight: Explore Your RecSys Dataset and Split
 
 <a href="https://arxiv.org/abs/2602.19339"><img src="https://img.shields.io/badge/arXiv-2602.19339-b31b1b.svg" height=22.5><a>
-[![Cite](https://img.shields.io/badge/Cite-BibTeX-EE4C2C)](https://github.com/monkey0head/SplitLight?tab=readme-ov-file#-citation)
+[![Cite](https://img.shields.io/badge/Cite-BibTeX-EE4C2C)](https://github.com/monkey0head/SplitLight?tab=readme-ov-file#citation)
 [![Streamlit](https://img.shields.io/badge/UI-Streamlit-ff69b4)](https://streamlit.io/)
 [![Hydra](https://img.shields.io/badge/Config-Hydra-%238a91faff)](https://github.com/facebookresearch/hydra)
 [![License](https://img.shields.io/badge/License-MIT-ADD8E6)](./LICENSE) 
@@ -20,9 +20,9 @@
 - **Flexible workflow** — Use the Streamlit app for ad-hoc audits, or call `src/stats` and `src/splits` from your own pipelines and notebooks (see the [demo notebook](demo.ipynb)).
 
 
-<div align="center">
+<div align="center" style="margin-top: 20px;">
     <a >
-        <img src="/home/jovyan/gusak/SplitLight/streamlit_ui/pictures/pipeline.png" width="100%">
+        <img src="streamlit_ui/pictures/pipeline.png" width="100%">
     </a>
     <p>
         <i> SplitLight in a data-preparation pipeline. From the raw dataset to split subsets, SplitLight audits data, flags problems, and enables side-by-side comparison of alternative splits to justify the selected evaluation protocol.</i>
@@ -121,7 +121,7 @@ Each metric is assigned a health status based on configurable thresholds:
 - 🔴 **Warning** — potential data issue or leakage risk 
 
 
-<div align="center"> <video src="https://github.com/user-attachments/assets/f2114376-311c-474b-a511-2ffe17fc59f1" controls style="max-width: 90%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"> Your browser does not support the video tag. <a href="https://github.com/user-attachments/assets/f2114376-311c-474b-a511-2ffe17fc59f1">Watch the demo video</a>. </video> <p style="font-size: 12px; color: #666; margin-top: 8px;"> ▶ Click to play the short SplitLight's Summary Dashboard showcase. </p> </div>
+<div align="center"> <video src="https://github.com/user-attachments/assets/f2114376-311c-474b-a511-2ffe17fc59f1" controls style="max-width: 90%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"> Your browser does not support the video tag. <a href="https://github.com/user-attachments/assets/f2114376-311c-474b-a511-2ffe17fc59f1">Watch the demo video</a>. </video> <p style="font-size: 12px; color: #666; margin-top: 8px;"> ▶ Click to play the short SplitLight's Summary Page showcase. </p> </div>
 
 ### Configuration
 Thresholds and color rules for the Summary view can be customized in  
