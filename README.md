@@ -56,23 +56,23 @@ Example:
 
 ```bash
 data/
-  Beauty/
-    raw.csv                # optional
-    preprocessed.csv
-    leave-one-out/         # example split folder
-      train.csv
-      validation_input.csv
-      validation_target.csv
-      test_input.csv
-      test_target.csv
-  Diginetica/
-    preprocessed.csv
-    GTS-q09-val_by_time-target_last/
-      train.csv
-      validation_input.csv
-      validation_target.csv
-      test_input.csv
-      test_target.csv
+├── Beauty/
+│   ├── raw.csv                          # optional
+│   ├── preprocessed.csv
+│   └── leave-one-out/                   # example split folder
+│       ├── train.csv
+│       ├── validation_input.csv
+│       ├── validation_target.csv
+│       ├── test_input.csv
+│       └── test_target.csv
+└── Diginetica/
+    ├── preprocessed.csv
+    └── GTS-q09-val_by_time-target_last/
+        ├── train.csv
+        ├── validation_input.csv
+        ├── validation_target.csv
+        ├── test_input.csv
+        └── test_target.csv
 ```
 
 ## Streamlit UI
@@ -116,7 +116,7 @@ The Summary page in the Streamlit UI provides a high-level overview of dataset a
 - Color-coded signals to highlight potential issues at a glance 
 
 Each metric is assigned a health status based on configurable thresholds:
-- 🟢 **Good** — within expected bounds  
+- 🟢 **OK** — within expected bounds  
 - 🟡 **Need Attention** — mild irregularity detected  
 - 🔴 **Warning** — potential data issue or leakage risk 
 
@@ -222,7 +222,7 @@ If you use SplitLight in research or production, please consider citing our pape
       year={2026},
       eprint={2602.19339},
       archivePrefix={arXiv},
-      primaryClass={cs.IR}
+      primaryClass={cs.IR},
 }
 ```
 
