@@ -17,7 +17,7 @@
 
 - **Trustworthy evaluation** — Poor or inconsistent train/validation/test splits lead to overoptimistic metrics and non-reproducible research. SplitLight helps you detect leakage, cold-start issues, and distribution shifts before training.
 - **Transparent diagnostics** — Instead of treating the split as a black box, you get concrete stats: shared interactions, temporal overlap, leaked targets, cold user/item shares, and temporal deltas between input and target.
-- **Flexible workflow** — Use the Streamlit app for ad-hoc audits, or call `src/stats` and `src/splits` from your own pipelines and notebooks (see the [demo notebook](demo.ipynb)).
+- **Flexible workflow** — Use the [Streamlit app](https://github.com/monkey0head/SplitLight?tab=readme-ov-file#streamlit-ui) for ad-hoc audits, or call `src/stats` and `src/splits` from your own pipelines and notebooks (see the [demo notebook](demo.ipynb)).
 
 
 <div align="center" style="margin-top: 20px;">
@@ -222,7 +222,7 @@ If you use SplitLight in research or production, please consider citing our pape
       year={2026},
       eprint={2602.19339},
       archivePrefix={arXiv},
-      primaryClass={cs.IR},
+      primaryClass={cs.IR}
 }
 ```
 
